@@ -471,32 +471,70 @@ confidence levels, and actionable insights for Gold traders."""
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*Key Themes:*\n{self._format_themes(analysis.key_themes)}"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*Summary:*\n{analysis.reasoning[:500]}..."
+                    "text": f"*🔑 Key Themes:*\n{self._format_themes(analysis.key_themes)}"
                 }
             }
         ])
 
-        message = {
-            "text": f"{sentiment_emoji} Gold Sentiment Analysis - {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}",
-            "blocks": blocks
-        }
+        # Add summary in a separate block with proper text length handling
+        # Slack has a 3000 char limit per text block
+        summary_text = analysis.reasoning
+        if len(summary_text) > 2800:
+            # Split into multiple blocks if too long
+            summary_parts = self._split_text(summary_text, 2800)
+            for i, part in enumerate(summary_parts):
+                if i == 0:
+                    blocks.append({
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"*📋 Analysis Summary:*\n{part}"
+                        }
+                    })
+                else:
+                    blocks.append({
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": part
+                        }
+                    })
+        else:
+            blocks.append({
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*📋 Analysis Summary:*\n{summary_text}"
+                }
+            })
 
-        # Add risk factors if present
+        # Add risk factors if present (before summary to keep it visible)
         if hasattr(analysis, 'risk_factors') and analysis.risk_factors:
-            message["blocks"].append({
+            blocks.append({
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
                     "text": f"*⚠️ Risk Factors:*\n{self._format_list(analysis.risk_factors)}"
                 }
             })
+
+        # Add footer with timestamp
+        blocks.append({
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"⏰ Analysis completed at {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')} | 📊 nix-trader-ai"
+                }
+            ]
+        })
+
+        message = {
+            "text": f"{sentiment_emoji} Gold Sentiment Analysis - {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}",
+            "blocks": blocks,
+            "unfurl_links": False,
+            "unfurl_media": False
+        }
 
         await self.slack_service.send_message(message)
 
@@ -513,17 +551,51 @@ confidence levels, and actionable insights for Gold traders."""
         else:
             return "Very Bearish"
 
+    def _split_text(self, text: str, max_length: int) -> List[str]:
+        """Split text into chunks that fit within Slack's character limit.
+
+        Args:
+            text: Text to split
+            max_length: Maximum length per chunk
+
+        Returns:
+            List of text chunks
+        """
+        if len(text) <= max_length:
+            return [text]
+
+        chunks = []
+        current_chunk = ""
+
+        # Split by sentences (simple approach)
+        sentences = text.replace('. ', '.|').replace('.\n', '|\n').split('|')
+
+        for sentence in sentences:
+            if len(current_chunk) + len(sentence) <= max_length:
+                current_chunk += sentence
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+                current_chunk = sentence
+
+        if current_chunk:
+            chunks.append(current_chunk.strip())
+
+        return chunks
+
     def _format_themes(self, themes: List[str]) -> str:
         """Format themes as bullet points."""
         if not themes:
-            return "No specific themes identified"
-        return "\n".join([f"• {theme}" for theme in themes[:5]])
+            return "_No specific themes identified_"
+        # Show all themes, not just first 5
+        return "\n".join([f"• {theme}" for theme in themes])
 
     def _format_list(self, items: List[str]) -> str:
         """Format list items as bullet points."""
         if not items:
-            return "None identified"
-        return "\n".join([f"• {item}" for item in items[:5]])
+            return "_None identified_"
+        # Show all items, not just first 5
+        return "\n".join([f"• {item}" for item in items])
 
 
 async def run_gold_sentiment_analysis() -> SentimentAnalysis:
