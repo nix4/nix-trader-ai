@@ -1,0 +1,12 @@
+A production ready framework for a multi-agent trading application using
+  pydantic-ai. The aim of the application is to help a professional trader to select the
+  financial instrument that offers possible opportunities based on market data. The trader
+  will maintain a list of favourite trading instruments and the application will review that
+  list and provide suggestion of the best instruments to trade. The application then analyses
+  the instruments selected from the suggestions and conducts everal analyses using
+  fundamentals relevant for that instrument, news and sentiment analysis as well as technical
+  analysis. The application then determines the best possible entry, stop loss and profit
+  takers based on market data and the preconfigured minimum risk to reward ratio. The
+  application then conducts a risks analysis using all the provided data before creating a
+  summary of the proposed trades. Tha applicatio makes use of existing MCP services such as that from
+  alpha vantage for news and tecnical analysis

@@ -1,0 +1,13 @@
+# AWS Lambda deployment requirements
+# This file should be used to create the Lambda deployment package
+
+pydantic-ai>=0.0.13
+pydantic>=2.8.0
+pydantic-settings>=2.0.0
+httpx>=0.25.0
+python-dotenv>=1.0.0
+loguru>=0.7.0
+openai>=1.0.0
+
+# Note: Some packages may need to be compiled for Amazon Linux
+# Use: pip install -r requirements-lambda.txt -t package/ --platform manylinux2014_x86_64 --only-binary=:all:

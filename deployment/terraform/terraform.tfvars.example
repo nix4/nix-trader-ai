@@ -1,0 +1,47 @@
+# Example Terraform variables file
+# Copy this file to terraform.tfvars and fill in your values
+
+# AWS Configuration
+aws_region = "us-east-1"
+
+# Lambda Configuration
+function_name = "gold-sentiment-analysis"
+lambda_timeout = 300
+lambda_memory_size = 512
+
+# Schedule Configuration
+# Run every 4 hours
+schedule_expression = "rate(4 hours)"
+
+# Alternative schedule examples:
+# Every 6 hours: "rate(6 hours)"
+# Every day at 9 AM UTC: "cron(0 9 * * ? *)"
+# Every 4 hours during market hours: "cron(0 9,13,17,21 * * ? *)"
+# Twice daily: "rate(12 hours)"
+
+# API Keys (REQUIRED)
+openai_api_key = "sk-..." # Your OpenAI API key
+
+# News API Keys (at least one recommended)
+newsapi_key = "" # Get from https://newsapi.org
+alpha_vantage_api_key = "" # Get from https://www.alphavantage.co
+
+# Slack Configuration (REQUIRED for notifications)
+slack_webhook_url = "" # Slack incoming webhook URL
+# OR
+slack_bot_token = "" # Slack bot token
+slack_default_channel = "#trading-alerts"
+
+# Logfire Configuration (RECOMMENDED for monitoring)
+logfire_token = "" # Get from https://logfire.pydantic.dev/
+
+# CloudWatch Logs
+log_retention_days = 7
+
+# Tags
+tags = {
+  Project     = "nix-trader-ai"
+  Component   = "gold-sentiment-analysis"
+  Environment = "production"
+  ManagedBy   = "terraform"
+}

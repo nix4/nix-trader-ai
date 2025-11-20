@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nix-trader-ai"
+version = "0.1.0"
+description = "Production-ready multi-agent trading application framework"
+authors = [{name = "Nix", email = "nix@example.com"}]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic-ai>=0.0.13",
+    "pydantic>=2.8.0",
+    "pydantic-settings>=2.0.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "httpx>=0.25.0",
+    "python-dotenv>=1.0.0",
+    "loguru>=0.7.0",
+    "asyncio>=3.4.3",
+    "pandas>=2.1.0",
+    "numpy>=1.24.0",
+    "yfinance>=0.2.0",
+    "alpha-vantage>=2.3.0",
+    "ibapi>=10.19.0",
+    "openai>=1.0.0",
+    "logfire[httpx,system-metrics]>=0.46.0",
+    "opentelemetry-instrumentation-asyncpg>=0.58b0",
+    "asyncpg>=0.30.0",
+    "gdeltdoc>=1.4.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.6.0",
+]
+cloud = [
+    "boto3>=1.28.0",  # AWS SDK for Lambda deployment
+    "awslambda>=0.1.0",  # Lambda utilities
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
