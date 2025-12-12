@@ -129,8 +129,11 @@ class BaseAgent(ABC, Generic[T]):
                         sentiment_sources=0,
                         signal="hold",
                         score=0.0,
+                        confidence=0.0,
+                        price_prediction="neutral",
                         reasoning=f"Agent error: {str(e)}",
                         key_themes=[],
+                        risk_factors=[],
                         analyzed_at=datetime.now()
                     )
                 elif result_name == "RiskAnalysis":

@@ -320,37 +320,52 @@ confidence levels, and actionable insights for Gold traders."""
         ## Additional Market Context:
         {context.get('additional_context', 'N/A')}
 
-        Analyze the following:
+        Analyze the following and provide ALL required fields in your response:
 
         1. **Overall Sentiment Score** (-1 to 1):
            - Aggregate sentiment from all news sources
            - Weight by source credibility and recency
+           - Provide as 'overall_sentiment' field
 
-        2. **Key Drivers**:
+        2. **Confidence Level** (REQUIRED - 0 to 1):
+           - Based on data quality, news volume, and consistency of signals
+           - Higher confidence (0.7-1.0) when news is consistent and from reliable sources
+           - Medium confidence (0.4-0.7) with mixed signals or moderate news volume
+           - Lower confidence (0.0-0.4) with conflicting information or limited data
+           - Provide as 'confidence' field (decimal value between 0 and 1)
+
+        3. **Price Prediction** (REQUIRED):
+           - Short-term outlook (24-48 hours): Must be exactly 'bullish', 'neutral', or 'bearish'
+           - Provide as 'price_prediction' field
+           - Base on overall sentiment, market data, and news analysis
+
+        4. **Key Drivers**:
            - Identify top 3-5 factors currently impacting Gold
            - Rate their bullish/bearish impact (strong/moderate/weak)
+           - Include in 'key_themes' as list of strings
 
-        3. **Geopolitical & Macro Factors**:
+        5. **Geopolitical & Macro Factors**:
            - Fed policy expectations and rate decisions
            - Dollar strength and currency movements
            - Geopolitical tensions and safe-haven demand
            - Inflation trends and real yield movements
 
-        4. **Technical & Flow Analysis**:
+        6. **Technical & Flow Analysis**:
            - Institutional positioning and ETF flows
            - Mining sector developments
            - Jewelry demand trends
            - Supply/demand imbalances
 
-        5. **Price Movement Prediction**:
-           - Short-term outlook (24-48 hours): Bullish/Neutral/Bearish
-           - Medium-term outlook (1-2 weeks): Bullish/Neutral/Bearish
-           - Confidence level (0-100%)
-           - Key price levels to watch
-
-        6. **Risk Factors**:
+        7. **Risk Factors** (REQUIRED):
            - Events that could reverse current sentiment
            - Upcoming catalysts (data releases, Fed speeches, etc.)
+           - Provide as 'risk_factors' list
+
+        IMPORTANT:
+        - Always provide a 'confidence' value between 0 and 1 (not 0-100%)
+        - Always provide 'price_prediction' as one of: 'bullish', 'neutral', or 'bearish'
+        - Include comprehensive 'reasoning' explaining your analysis
+        - Populate 'key_themes' and 'risk_factors' lists
 
         Provide actionable insights for traders and risk managers.
         """
@@ -518,6 +533,19 @@ confidence levels, and actionable insights for Gold traders."""
                 }
             })
 
+        # Add top 5 news headlines
+        if news_items and len(news_items) > 0:
+            blocks.append({
+                "type": "divider"
+            })
+            blocks.append({
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*📰 Top News Headlines:*\n{self._format_news_headlines(news_items[:5])}"
+                }
+            })
+
         # Add footer with timestamp
         blocks.append({
             "type": "context",
@@ -596,6 +624,32 @@ confidence levels, and actionable insights for Gold traders."""
             return "_None identified_"
         # Show all items, not just first 5
         return "\n".join([f"• {item}" for item in items])
+
+    def _format_news_headlines(self, news_items: List[Dict[str, Any]]) -> str:
+        """Format news headlines with title, time, and source.
+
+        Args:
+            news_items: List of news article dictionaries
+
+        Returns:
+            Formatted string with news headlines
+        """
+        if not news_items:
+            return "_No news articles available_"
+
+        formatted_headlines = []
+        for i, item in enumerate(news_items, 1):
+            title = item.get('title', 'No title')
+            source = item.get('source', 'Unknown source')
+            published_at = item.get('published_at', 'N/A')
+
+            # Truncate title if too long (Slack has limits)
+            if len(title) > 100:
+                title = title[:97] + "..."
+
+            formatted_headlines.append(f"{i}. *{title}*\n   _Source: {source} | {published_at}_")
+
+        return "\n\n".join(formatted_headlines)
 
 
 async def run_gold_sentiment_analysis() -> SentimentAnalysis:

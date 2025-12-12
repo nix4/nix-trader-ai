@@ -129,8 +129,11 @@ class SentimentAnalysis(BaseModel):
     sentiment_sources: int = Field(..., description="Number of sentiment sources analyzed")
     signal: AnalysisSignal = Field(..., description="Sentiment analysis signal")
     score: float = Field(..., description="Sentiment score (0-100)")
+    confidence: float = Field(..., description="Confidence level (0-1) for the analysis")
+    price_prediction: str = Field(..., description="Price outlook: 'bullish', 'neutral', or 'bearish'")
     reasoning: str = Field(..., description="Analysis reasoning")
     key_themes: List[str] = Field(default_factory=list, description="Key sentiment themes")
+    risk_factors: List[str] = Field(default_factory=list, description="Risk factors to monitor")
     analyzed_at: datetime = Field(default_factory=datetime.now, description="Analysis timestamp")
 
 
